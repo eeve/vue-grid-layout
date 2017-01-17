@@ -25,6 +25,7 @@
                     :is-resizable="true"
                     :vertical-compact="true"
                     :use-css-transforms="true"
+                    @resize="resize"
             >
                 <grid-item v-for="item in layout"
                            :x="item.x"
@@ -33,7 +34,9 @@
                            :h="item.h"
                            :min-w="2"
                            :min-h="2"
-                           :i="item.i">
+                           :i="item.i"
+                           @heightChanged="heightChanged"
+                           @widthChanged="widthChanged">
                     <test-element :text="item.i"></test-element>
                 </grid-item>
             </grid-layout>
@@ -110,6 +113,18 @@
                 var item = {"x":0,"y":0,"w":2,"h":2,"i":this.index+"", whatever: "bbb"};
                 this.index++;
                 this.layout.push(item);
+            },
+
+            resize: function(type, i, x, y, h, w, newSize) {
+                console.log(type, i, x, y, h, w, newSize);
+            },
+
+            heightChanged: function(i, height) {
+                console.log('height', i, height);
+            },
+            
+            widthChanged: function(i, width) {
+                console.log('width', i, width);
             }
         },
     }

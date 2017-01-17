@@ -212,10 +212,14 @@
         },
         watch: {
             cols: function() {
-                this.createStyle();
+                this.createStyle(function() {
+                    eventBus.$emit('updatedSizeEvent', 'height', this.i, this.style.height);
+                });
             },
             containerWidth: function() {
-                this.createStyle();
+                this.createStyle(function() {
+                    eventBus.$emit('updatedSizeEvent', 'width', this.i, this.style.width);
+                });
             },
             x: function() {
                 this.createStyle();
@@ -233,7 +237,7 @@
         computed: {
         },
         methods: {
-            createStyle: function() {
+            createStyle: function(callback) {
                 if (this.x + this.w > this.cols) {
                     this.x = 0;
                     this.w = this.cols;
@@ -260,7 +264,7 @@
                     style = setTopLeft(pos.top, pos.left, pos.width, pos.height);
                 }
                 this.style = style;
-
+                callback && callback.call(this);
             },
             handleResize: function(event) {
                 const position = getControlPosition(event);
@@ -291,6 +295,7 @@
                         var pos = this.calcPosition(this.x, this.y, this.w, this.h);
                         newSize.width = pos.width;
                         newSize.height = pos.height;
+                        
 //                        console.log("### resize end => " + JSON.stringify(newSize));
                         this.resizing = null;
                         this.isResizing = false;
@@ -322,7 +327,8 @@
                 this.lastW = x;
                 this.lastH = y;
 
-                eventBus.$emit("resizeEvent", event.type, this.i, this.x, this.y, pos.h, pos.w);
+                eventBus.$emit("resizeEvent", event.type, this.i, this.x, this.y, pos.h, pos.w, newSize);
+
             },
             handleDrag(event) {
                 if (this.isResizing) return;
@@ -374,7 +380,7 @@
                 this.lastX = x;
                 this.lastY = y;
 
-                eventBus.$emit("dragEvent", event.type, this.i, pos.x, pos.y, this.h, this.w);
+                eventBus.$emit("dragEvent", event.type, this.i, pos.x, pos.y, this.h, this.w, newPosition);
             },
             calcPosition: function(x, y, w, h) {
                 const colWidth = this.calcColWidth();

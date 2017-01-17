@@ -84,18 +84,24 @@
                     y: 0,
                     w: 0,
                     h: 0,
-                    i: 0
+                    i: "__placeholder__"
                 },
             };
         },
         created () {
             var self = this;
 
-            eventBus.$on('resizeEvent', function(eventType, i, x, y, h, w) {
+            eventBus.$on('resizeEvent', function(eventType, i, x, y, h, w, newSize) {
                 self.resizeEvent(eventType, i, x, y, h, w);
+                self.$emit('resize', eventType, i, x, y, h, w, newSize);
             });
-            eventBus.$on('dragEvent', function(eventType, i, x, y, h, w) {
+            eventBus.$on('dragEvent', function(eventType, i, x, y, h, w, newSize) {
                 self.dragEvent(eventType, i, x, y, h, w);
+                self.$emit('resize', eventType, i, x, y, h, w, newSize);
+            });
+            eventBus.$on('updatedSizeEvent', function(eventType, i, value) {
+                if(i === '__placeholder__') { return; }
+                self.$emit('updatedSize', eventType, i, value);
             });
         },
         mounted: function() {
@@ -163,6 +169,7 @@
                     //this.$broadcast("updateWidth", this.width);
                     eventBus.$emit("updateWidth", this.width);
                     this.updateHeight();
+                    
                 }
             },
             updateHeight: function () {
@@ -171,7 +178,7 @@
                 };
             },
             onWindowResize: function () {
-                if (this.$refs !== null && this.$refs.item !== null) {
+                if (this.$refs !== null && this.$refs.item !== null && this.$refs.item !== undefined) {
                     this.width = this.$refs.item.offsetWidth;
                 }
             },
